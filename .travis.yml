@@ -3,7 +3,7 @@ services:
   - docker
 
 before:_install: 
-  - docker build -t carlic/complex-test -f ./client/Dockerfile.dev ./client
+  - docker build -t carlic/complex-client-test -f ./client/Dockerfile.dev ./client
 
 srcipt:
   - docker run carlic/complex-client-test npm test
