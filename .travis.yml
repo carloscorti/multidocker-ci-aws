@@ -1,0 +1,25 @@
+sudo: required
+services: 
+  - docker
+
+before:_install: 
+  - docker build -t carlic/complex-test -f ./client/Dockerfile.dev ./client
+
+srcipt:
+  - docker run carlic/complex-client-test npm test
+
+after_succes:
+  - docker build -t carlic/complex-client ./client
+  - docker build -t carlic/complex-nginx ./nginx
+  - docker build -t carlic/complex-server ./server
+  - docker build -t carlic/complex-worker ./worker
+  - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USER" --password-stdin
+  - docker push carlic/complex-client
+  - docker push carlic/complex-nginx
+  - docker push carlic/complex-server
+  - docker push carlic/complex-worker
+
+
+
+
+
