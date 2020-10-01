@@ -1,0 +1,74 @@
+version: "3"
+
+services: 
+  postgres:
+    image: postgres:latest
+    environment: 
+      POSTGRES_DB: index-db
+      POSTGRES_USER: carlic
+      POSTGRES_PASSWORD: carlicpassword
+  
+  redis:
+    image: redis:latest
+
+  nginx:
+    restart: always
+
+    build: ./nginx
+    # build:
+    #   dockerfile: Dockerfile
+    #   context: ./nginx
+    ports: 
+      - 3020:80
+
+  api:
+    build: ./server
+    # build:
+    #   dockerfile: Dockerfile.dev
+    #   context: ./server
+    # volumes:
+    #   - /app/node_modules
+    #   - ./server:/app
+    environment: 
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      PGUSER: carlic
+      PGHOST: postgres
+      PGDATABASE: index-db
+      PGPASSWORD: carlicpassword
+      PGPORT: 5432
+      # CHOKIDAR_USEPOLLING: "true"
+    depends_on: 
+      - postgres
+
+  client:
+    build: ./client
+    # build:
+    #   dockerfile: Dockerfile.dev
+    #   context: ./client
+    # volumes:
+    #   - /app/node_modules
+    #   - ./client:/app
+    # environment: 
+    #   CHOKIDAR_USEPOLLING: "true"
+    depends_on: 
+      - api
+
+  worker:
+    build: ./worker
+    # build:
+    #   dockerfile: Dockerfile.dev
+    #   context: ./worker
+    # volumes:
+    #   - /app/node_modules
+    #   - ./worker:/app
+    environment: 
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      # CHOKIDAR_USEPOLLING: "true"
+    depends_on: 
+      - redis
+      - api
+      - client
+    
+    
